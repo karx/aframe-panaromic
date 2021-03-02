@@ -8,12 +8,12 @@
     <script src="./aframe.min.js"></script>
     <script src="./aframe-extras.min.js"></script>
     <script src="https://unpkg.com/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
-    
+    <script src="https://unpkg.com/aframe-camera-transform-controls-component/dist/aframe-camera-transform-controls-component.min.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- <img id="skyImage" src="PanoLadakh.jpg" alt=""> -->
-    <a-scene physics id="theScene" rain-of-entities="spread:13" rain-of-posts="spread: 5">
+    <a-scene physics id="theScene" camera-transform-controls="cameraRigId:'rig">
         
         <a-entity id="rig" position="0 1.6 0" rotation="0 180 0" movement-controls="fly: true">
             <a-entity laser-controls="hand: left"></a-entity>
