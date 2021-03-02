@@ -5,17 +5,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Schema.org JsonLD</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="./aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- <img id="skyImage" src="PanoLadakh.jpg" alt=""> -->
     <a-scene physics id="theScene" rain-of-entities="spread:13" rain-of-posts="spread: 5">
         <a-entity id="rig" position="0 1.6 0" rotation="0 180 0">
-            <a-entity id="camera" camera look-controls wasd-controls></a-entity>
+            <a-entity id="camera" camera look-controls wasd-controls="fly:true; acceleration:100"></a-entity>
         </a-entity>
-        <a-entity forcegraph='nodes: [{"id": 1, "name": "first"}, {"id": 2, "name": "second"}]; links: [{"source": 1, "target": 2}]'> </a-entity>
+        <a-entity 
+            id="forceGraph" scale="0.2 0.2 0.2"
+            forcegraph='nodes: [{"id": 1, "label": "first"}, {"id": 2, "label": "second"}]; links: [{"source": 1, "target": 2}];'> 
+        </a-entity>
+        <a-sky color="#131313"></a-sky>
+        <div class="input-div">
+            <label for="graph-force-prop">Choose Graph Force Prop:</label>
+
+            <select name="graph-force-prop" id="graph-force-prop-select">
+            </select>
+        </div>
     </a-scene>
     <div id="progress">  </div>
     <script src="./file-load.js"></script>

@@ -16,6 +16,12 @@ html, body {
   .skyImage {
       z-index: -1;
   }
+  .input-div{
+    z-index: 100;
+    position: absolute;
+    top:10px;
+    
+  }
   #progress {
       z-index: 100;
       position: absolute;

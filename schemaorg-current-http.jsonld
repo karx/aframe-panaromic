@@ -1,5 +1,10 @@
 {
-    "graph": [
+  "@context": {
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
     {
       "@id": "http://schema.org/maximumAttendeeCapacity",
       "@type": "rdf:Property",
@@ -38499,5 +38504,7 @@
       "rdfs:subClassOf": {
         "@id": "http://schema.org/Review"
       }
-    }]
+    }
+  ],
+  "@id": "http://schema.org/#9.0"
 }

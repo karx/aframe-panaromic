@@ -1,156 +1,121 @@
+let indexedNodes;
 
-window.addEventListener( 'load', function () {
+async function getSchemaData() {
+	console.log('Starting ALL');
+	let response = await fetch("./schemaorg-current-http.jsonld");
+	let schemaData = await response.json();
+	// updateDOMGotRe   sponse();
 
-    
-	function setCustomObject( object ) {
+	console.log(schemaData);
+	return schemaData;
+}
 
-		viewer.src = FAKE_SCENE;
-		scene.setObject( object );
 
-	}
+async function getNodeListAndEdgeList() {
+	let schemaData = await getSchemaData();
+	console.log(`Got ${schemaData["@graph"].length} total edges`);
 
-	function handleFile( file ) {
+	let edgeList = [];
+	let nodeList = [];
 
-		const extension = file.name.split( '.' ).pop().toLowerCase();
-		const reader = new FileReader();
+	schemaData["@graph"].forEach((element) => {
 
-		switch ( extension ) {
-
-			case 'jpg':
-			case 'jpeg':
-			case 'png':
-			case 'heic':
-
-				reader.onload = function(event) {
-					document.getElementById('progress').innerHTML = '';
-					console.log(event.target.result);
-					document.getElementById('theSky').setAttribute('src', event.target.result);
-					// document.getElementById('theSky').
-				  };
-				
-				reader.readAsDataURL( file );
-
-				break;
-
-			case 'fbx':
-
-				reader.addEventListener( 'load', async function ( event ) {
-
-					const { FBXLoader } = await import( './loaders/FBXLoader.js' );
-
-					const object = new FBXLoader().parse( event.target.result );
-
-					object.traverse( function ( child ) {
-
-						const material = child.material;
-
-						if ( material && material.isMeshPhongMaterial ) {
-
-							child.material = DEFAULT_MATERAL;
-
-						}
-
-					} );
-
-					setCustomObject( object );
-
-				}, false );
-				reader.readAsArrayBuffer( file );
-
-				break;
-
-			case 'glb':
-			case 'gltf':
-
-				viewer.src = URL.createObjectURL( file );
-
-				break;
-
-			case 'obj':
-
-				reader.addEventListener( 'load', async function ( event ) {
-
-					const { OBJLoader } = await import( './loaders/OBJLoader.js' );
-
-					const object = new OBJLoader().parse( event.target.result );
-
-					object.traverse( function ( child ) {
-
-						const material = child.material;
-
-						if ( material && material.isMeshPhongMaterial ) {
-
-							child.material = DEFAULT_MATERAL;
-
-						}
-
-					} );
-
-					setCustomObject( object );
-
-				}, false );
-				reader.readAsText( file );
-
-				break;
-
-			case 'ply':
-
-				reader.addEventListener( 'load', async function ( event ) {
-
-					const { PLYLoader } = await import( './loaders/PLYLoader.js' );
-
-					const geometry = new PLYLoader().parse( event.target.result );
-
-					geometry.computeVertexNormals();
-
-					setCustomObject( new Mesh( geometry, DEFAULT_MATERAL ) );
-
-				}, false );
-				reader.readAsArrayBuffer( file );
-
-				break;
-
-			case 'stl':
-
-				reader.addEventListener( 'load', async function ( event ) {
-
-					const { STLLoader } = await import( './loaders/STLLoader.js' );
-
-					const geometry = new STLLoader().parse( event.target.result );
-
-					setCustomObject( new Mesh( geometry, DEFAULT_MATERAL ) );
-
-				}, false );
-				reader.readAsBinaryString( file );
-
-				break;
-
+		if (element["@id"] !== null) {
+			element.id = element["@id"];
+			nodeList.push({
+				id: element["@id"],
+				'@id': element["@id"],
+				label: element["rdfs:label"],
+				type: element["@type"]
+			});
 		}
+		let allElProps = Object.keys(element);
+		allElProps.forEach((prop) => {
+			//if Literal
+			if (typeof element[prop] !== 'object' && element[prop] !== null) {
+				//let it just be a prop in the Node -> saved in the nodelist
+			} else if (Array.isArray(element[prop])) {
+				element[prop].forEach((eachVal) => {
+					edgeList.push({
+						id: element["id"],
+						prop: prop,
+						val: eachVal["id"]
+					})
+				})
+				// console.log(element[prop]);
+			} else {
+				if (element[prop]["@id"] !== null) {
+					// console.log(`${prop} : ${element[prop]}`);
+					edgeList.push({
+						id: element["@id"],
+						prop: prop,
+						val: element[prop]["@id"]
+					});
+				}
+			}
+		});
 
+	});
+	console.log({ edgeList });
+	console.log({ nodeList });
+	return {
+		nodeList: nodeList,
+		edgeList: edgeList
 	}
+}
 
-	document.addEventListener( 'dragover', function ( event ) {
 
-		event.preventDefault();
-		event.dataTransfer.dropEffect = 'copy';
+window.addEventListener('load', async function () {
 
-	}, false );
-
-	document.addEventListener( 'drop', function ( event ) {
-
-		event.preventDefault();
-		handleFile( event.dataTransfer.files[ 0 ] );
-
-	}, false );
-
+	let graph_data = await getNodeListAndEdgeList();
+	console.log(graph_data);
+	
+	goPlot(graph_data);
+	document.getElementById('graph-force-prop-select').addEventListener('change', (event) => {
+		goPlot(graph_data, event.target.value)
+	})
 	// Chrome OS
 
-	if ( 'launchData' in window && Array.isArray( window.launchData.items ) ) {
+});
+async function goPlot(graph_data, force_graph_prop = 'https://schema.org/domainIncludes') {
 
-		var item = window.launchData.items[ 0 ];
+	let selectedProp = force_graph_prop;
+	let nodeList = graph_data.nodeList
+	let propIDLIst = [...new Set(graph_data.edgeList.map(x => x.prop))]
+	addPropNamesToDOM(propIDLIst);
+	let edgeList = graph_data.edgeList
+		.filter(x => x.prop == selectedProp)
+		.map(x => {
+			return {	
+				source: x.id,
+				target: x.val
+			}
+		});
+	let nodeIDList = nodeList.map(x => x["@id"]);
+	edgeList = edgeList.filter(x => nodeIDList.indexOf(x.source) >= 0 && nodeIDList.indexOf(x.target)>=0);
+	console.log(`nodes: ${JSON.stringify(nodeList)}; `);
+	console.log({ nodeList });
+	console.log({ edgeList });
 
-		item.entry.file( handleFile );
+	document.getElementById("forceGraph").setAttribute('forcegraph',
+		// `nodes: [{"id": 1, "name": "first"}, {"id": 2, "name": "second"}, {"id": 3, "name": "thgree"}, {"id": "karo", "name": "kaaro"}]; links: [{"source": 1, "target": 2}, {"source": 1, "target": 3}, {"source": 1, "target": "karo"}]`);
+		`nodes: ${JSON.stringify(nodeList)}; links: ${JSON.stringify(edgeList)}; node-auto-color-by:"type"; node-label:"label"`)
+	console.log({ nodeList });
+	console.log({ edgeList });
 
-	}
+}
 
-} );
+async function addPropNamesToDOM(propIDList) {
+	let selectMainNode = document.getElementById('graph-force-prop-select');
+	let optionList = [];
+	let optionHTML = ``;
+	propIDList.forEach(prop => {
+		let optEL = document.createElement('option');
+		optEL.setAttribute('value', prop);
+		optEL.innerHTML = prop;
+		selectMainNode.appendChild(optEL);
+		optionHTML += `<option value="${prop}">${prop}</option>		`
+	});
+	// selectMainNode.innerHTML = selectMainNode;
+	console.log(optionHTML);
+}
