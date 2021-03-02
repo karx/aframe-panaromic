@@ -92,6 +92,10 @@ window.addEventListener('load', async function () {
 		state.node_color_prop = event.target.value;
 		goPlot(graph_data, state.force_graph_prop, state.node_color_prop)
 	})
+
+	document.addEventListener('thumbstickdown', (e) => {
+
+	})
 	// Chrome OS
 	
 
@@ -181,6 +185,7 @@ async function showNodeInfoVDOM(node) {
 	if (node === null) {
 		textVDOMEl.setAttribute('visible', false);
 		skyVDOMEl.setAttribute('color', '#131313');
+		node.__threeObj.scale = '1 1 1';
 	} else {
 		let textValue = `value:`;
 		Object.keys(node).forEach(prop => {
@@ -189,6 +194,8 @@ async function showNodeInfoVDOM(node) {
 		textVDOMEl.setAttribute('text', textValue)
 		textVDOMEl.setAttribute('visible', true)
 		skyVDOMEl.setAttribute('color', '#131353');
+		console.log(node.__threeObj);
+		node.__threeObj.scale = '2 2 2';
 
 	}
 	
