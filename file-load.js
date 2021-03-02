@@ -94,7 +94,13 @@ window.addEventListener('load', async function () {
 	})
 
 	document.addEventListener('thumbstickdown', (e) => {
+		console.log('THUmb Down');
+		console.log(e);
+	})
 
+	document.addEventListener('raycaster-intersected', e => {
+		console.log('Raycaster Intersected');
+		console.log({e});
 	})
 	// Chrome OS
 	
