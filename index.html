@@ -20,11 +20,12 @@
             id="forceGraph" scale="0.2 0.2 0.2"
             forcegraph='nodes: [{"id": 1, "label": "first"}, {"id": 2, "label": "second"}]; links: [{"source": 1, "target": 2}];'> 
         </a-entity>
-        <a-sky color="#131313"></a-sky>
+        <!-- <a-sky color="#131313"></a-sky> -->
         <div class="input-div">
             <label for="graph-force-prop">Choose Graph Force Prop:</label>
 
             <select name="graph-force-prop" id="graph-force-prop-select">
+                <option value='all' selected>All</option>
             </select>
         </div>
     </a-scene>

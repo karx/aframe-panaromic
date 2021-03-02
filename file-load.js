@@ -19,20 +19,24 @@ async function getNodeListAndEdgeList() {
 	let nodeList = [];
 
 	schemaData["@graph"].forEach((element) => {
+		let nodeEL = {};
 
 		if (element["@id"] !== null) {
 			element.id = element["@id"];
-			nodeList.push({
+			nodeEL = {
 				id: element["@id"],
 				'@id': element["@id"],
 				label: element["rdfs:label"],
 				type: element["@type"]
-			});
+			};
+			nodeList.push(nodeEL);
+
 		}
 		let allElProps = Object.keys(element);
 		allElProps.forEach((prop) => {
 			//if Literal
 			if (typeof element[prop] !== 'object' && element[prop] !== null) {
+				// nodeEL[prop] = element[prop];
 				//let it just be a prop in the Node -> saved in the nodelist
 			} else if (Array.isArray(element[prop])) {
 				element[prop].forEach((eachVal) => {
@@ -54,7 +58,6 @@ async function getNodeListAndEdgeList() {
 				}
 			}
 		});
-
 	});
 	console.log({ edgeList });
 	console.log({ nodeList });
@@ -77,14 +80,14 @@ window.addEventListener('load', async function () {
 	// Chrome OS
 
 });
-async function goPlot(graph_data, force_graph_prop = 'https://schema.org/domainIncludes') {
+async function goPlot(graph_data, force_graph_prop = 'all') {
 
 	let selectedProp = force_graph_prop;
 	let nodeList = graph_data.nodeList
 	let propIDLIst = [...new Set(graph_data.edgeList.map(x => x.prop))]
-	addPropNamesToDOM(propIDLIst);
 	let edgeList = graph_data.edgeList
-		.filter(x => x.prop == selectedProp)
+		.filter(x => x.prop == selectedProp || force_graph_prop === 'all')
+		.filter(x => x.target !== null)
 		.map(x => {
 			return {	
 				source: x.id,
@@ -102,20 +105,18 @@ async function goPlot(graph_data, force_graph_prop = 'https://schema.org/domainI
 		`nodes: ${JSON.stringify(nodeList)}; links: ${JSON.stringify(edgeList)}; node-auto-color-by:"type"; node-label:"label"`)
 	console.log({ nodeList });
 	console.log({ edgeList });
+	addPropNamesToDOM(propIDLIst);
 
 }
 
 async function addPropNamesToDOM(propIDList) {
 	let selectMainNode = document.getElementById('graph-force-prop-select');
 	let optionList = [];
-	let optionHTML = ``;
 	propIDList.forEach(prop => {
 		let optEL = document.createElement('option');
 		optEL.setAttribute('value', prop);
 		optEL.innerHTML = prop;
 		selectMainNode.appendChild(optEL);
-		optionHTML += `<option value="${prop}">${prop}</option>		`
 	});
-	// selectMainNode.innerHTML = selectMainNode;
-	console.log(optionHTML);
+	
 }
