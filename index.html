@@ -15,16 +15,26 @@
     <!-- <img id="skyImage" src="PanoLadakh.jpg" alt=""> -->
     <a-scene physics id="theScene" rain-of-entities="spread:13" rain-of-posts="spread: 5">
         
-        <a-entity id="rig" position="0 1.6 0" rotation="0 180 0" movement-controls="fly: false">
+        <a-entity id="rig" position="0 1.6 0" rotation="0 180 0" look-controls wasd-controls="fly:true; acceleration:100" movement-controls="fly: true">
             <a-entity laser-controls="hand: left"></a-entity>
             <a-entity oculus-touch-controls="hand: right"></a-entity>
-            <a-entity id="camera" camera look-controls wasd-controls="fly:true; acceleration:100" ></a-entity>
+            <a-entity   position="1 0 -1.5"
+            id="nodeDesc"
+            geometry="primitive: plane"
+            material="color: #1313F3; transparent: true; opacity: 0.05;" 
+            text="value: 1-wide\ndefault."
+            visible="false"></a-entity>
+
+            <a-entity id="camera" camera  ></a-entity>
         </a-entity>
+        <a-entity text="value: Food"></a-entity>
+        <a-entity text="value: food is something that you eat."></a-entity>
+
         <a-entity 
             id="forceGraph" scale="0.2 0.2 0.2"
             forcegraph='nodes: [{"id": 1, "label": "first"}, {"id": 2, "label": "second"}]; links: [{"source": 1, "target": 2}];'> 
         </a-entity>
-        <!-- <a-sky color="#131313"></a-sky> -->
+        <a-sky id="theSky" color="#131313"></a-sky>
         <div class="input-div">
             <label for="graph-force-prop">Choose Graph Force Prop:</label>
 

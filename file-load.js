@@ -93,6 +93,7 @@ window.addEventListener('load', async function () {
 		goPlot(graph_data, state.force_graph_prop, state.node_color_prop)
 	})
 	// Chrome OS
+	
 
 });
 async function goPlot(graph_data, force_graph_prop = 'all', node_color_prop = 'type') {
@@ -123,7 +124,8 @@ async function goPlot(graph_data, force_graph_prop = 'all', node_color_prop = 't
 		links: JSON.stringify(edgeList),
 		'node-auto-color-by': node_color_prop,
 		'node-label': 'label',
-		'link-auto-color-by': 'prop'
+		'link-auto-color-by': 'prop',
+		'on-node-center-hover': (e) => { showNodeInfoVDOM(e) }
 	};
 	document.getElementById("forceGraph").setAttribute('forcegraph', 
 		Object.keys(forceGraphAttr).map(attr => `${attr}: ${forceGraphAttr[attr]}`).join(';'))
@@ -169,4 +171,25 @@ async function createdCountedPropList(propList) {
 	  
 		return acc;
 	  }, {});	  
+}
+
+
+async function showNodeInfoVDOM(node) {
+	let textVDOMEl = document.getElementById('nodeDesc');
+	let skyVDOMEl = document.getElementById('theSky');
+	console.log(node);
+	if (node === null) {
+		textVDOMEl.setAttribute('visible', false);
+		skyVDOMEl.setAttribute('color', '#131313');
+	} else {
+		let textValue = `value:`;
+		Object.keys(node).forEach(prop => {
+			textValue += `\n ${prop}: ${node[prop]}`
+		});
+		textVDOMEl.setAttribute('text', textValue)
+		textVDOMEl.setAttribute('visible', true)
+		skyVDOMEl.setAttribute('color', '#131353');
+
+	}
+	
 }
