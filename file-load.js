@@ -129,6 +129,11 @@ async function goPlot(graph_data, force_graph_prop = 'all', node_color_prop = 't
 		'node-auto-color-by': node_color_prop,
 		'node-label': 'label',
 		'link-auto-color-by': 'prop',
+		// 'link-label': 'prop',
+		'link-curvature': 0.3,
+		// 'link-directional-arrow-length': 1,
+		// 'link-directional-arrow-rel-pos': (e) => { return 1},
+		'link-width': '1px',
 		'on-node-center-hover': (e) => { showNodeInfoVDOM(e) }
 	};
 	document.getElementById("forceGraph").setAttribute('forcegraph', 
@@ -181,11 +186,11 @@ async function createdCountedPropList(propList) {
 async function showNodeInfoVDOM(node) {
 	let textVDOMEl = document.getElementById('nodeDesc');
 	let skyVDOMEl = document.getElementById('theSky');
+	let threeScene = skyVDOMEl.sceneEl.object3D;
 	console.log(node);
 	if (node === null) {
 		textVDOMEl.setAttribute('visible', false);
 		skyVDOMEl.setAttribute('color', '#131313');
-		node.__threeObj.scale = '1 1 1';
 	} else {
 		let textValue = `value:`;
 		Object.keys(node).forEach(prop => {
@@ -194,8 +199,14 @@ async function showNodeInfoVDOM(node) {
 		textVDOMEl.setAttribute('text', textValue)
 		textVDOMEl.setAttribute('visible', true)
 		skyVDOMEl.setAttribute('color', '#131353');
-		console.log(node.__threeObj);
-		node.__threeObj.scale = '2 2 2';
+		let threeObj = threeScene.getObjectById(node.index, true);
+		console.log(threeObj);
+		threeObj.animations.push({
+			target: 'scale',
+			from: '4 4 4',
+			to: '1 1 1',
+			dur: 3000
+		});
 
 	}
 	
