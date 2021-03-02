@@ -1,5 +1,9 @@
 let indexedNodes;
-
+let state = {
+	graph_data: {},
+	force_graph_prop: 'all',
+	node_color_prop: 'all'
+};
 async function getSchemaData() {
 	console.log('Starting ALL');
 	let response = await fetch("./schemaorg-current-http.jsonld");
@@ -18,10 +22,11 @@ async function getNodeListAndEdgeList() {
 	let edgeList = [];
 	let nodeList = [];
 
-	schemaData["@graph"].forEach((element) => {
+	schemaData["@graph"]
+		.filter(element => element["@id"] !== null)
+		.forEach((element) => {
 		let nodeEL = {};
 
-		if (element["@id"] !== null) {
 			element.id = element["@id"];
 			nodeEL = {
 				id: element["@id"],
@@ -31,12 +36,11 @@ async function getNodeListAndEdgeList() {
 			};
 			nodeList.push(nodeEL);
 
-		}
 		let allElProps = Object.keys(element);
 		allElProps.forEach((prop) => {
 			//if Literal
 			if (typeof element[prop] !== 'object' && element[prop] !== null) {
-				// nodeEL[prop] = element[prop];
+				// nodeEL[prop.replace(':','')] = element[prop];
 				//let it just be a prop in the Node -> saved in the nodelist
 			} else if (Array.isArray(element[prop])) {
 				element[prop].forEach((eachVal) => {
@@ -72,26 +76,37 @@ window.addEventListener('load', async function () {
 
 	let graph_data = await getNodeListAndEdgeList();
 	console.log(graph_data);
-	
+
+	// let listOfLinkedProperties = [...new Set(graph_data.edgeList.map(x => x.prop))];
+	let listOfLinkedProperties = await createdCountedPropList(graph_data.edgeList.map(x => x.prop));
+	let listOfLiteralProperties = Object.keys(graph_data.nodeList[0]);
+	addPropNamesToDOM(listOfLinkedProperties);	//list of properties
+	addNodeColorByDOM(listOfLiteralProperties);		//list of String Properties in the first Node object. (ideally, all possible Literal properties of a Node)
+
 	goPlot(graph_data);
 	document.getElementById('graph-force-prop-select').addEventListener('change', (event) => {
-		goPlot(graph_data, event.target.value)
+		state.force_graph_prop = event.target.value;
+		goPlot(graph_data, state.force_graph_prop, state.node_color_prop)
+	})
+	document.getElementById('node-color-prop-select').addEventListener('change', (event) => {
+		state.node_color_prop = event.target.value;
+		goPlot(graph_data, state.force_graph_prop, state.node_color_prop)
 	})
 	// Chrome OS
 
 });
-async function goPlot(graph_data, force_graph_prop = 'all') {
+async function goPlot(graph_data, force_graph_prop = 'all', node_color_prop = 'type') {
 
 	let selectedProp = force_graph_prop;
 	let nodeList = graph_data.nodeList
-	let propIDLIst = [...new Set(graph_data.edgeList.map(x => x.prop))]
 	let edgeList = graph_data.edgeList
 		.filter(x => x.prop == selectedProp || force_graph_prop === 'all')
 		.filter(x => x.target !== null)
 		.map(x => {
 			return {	
 				source: x.id,
-				target: x.val
+				target: x.val,
+				prop: x.prop
 			}
 		});
 	let nodeIDList = nodeList.map(x => x["@id"]);
@@ -100,23 +115,58 @@ async function goPlot(graph_data, force_graph_prop = 'all') {
 	console.log({ nodeList });
 	console.log({ edgeList });
 
-	document.getElementById("forceGraph").setAttribute('forcegraph',
-		// `nodes: [{"id": 1, "name": "first"}, {"id": 2, "name": "second"}, {"id": 3, "name": "thgree"}, {"id": "karo", "name": "kaaro"}]; links: [{"source": 1, "target": 2}, {"source": 1, "target": 3}, {"source": 1, "target": "karo"}]`);
-		`nodes: ${JSON.stringify(nodeList)}; links: ${JSON.stringify(edgeList)}; node-auto-color-by:"type"; node-label:"label"`)
+	// document.getElementById("forceGraph").setAttribute('forcegraph',
+	// 	// `nodes: [{"id": 1, "name": "first"}, {"id": 2, "name": "second"}, {"id": 3, "name": "thgree"}, {"id": "karo", "name": "kaaro"}]; links: [{"source": 1, "target": 2}, {"source": 1, "target": 3}, {"source": 1, "target": "karo"}]`);
+	// 	`nodes: ${JSON.stringify(nodeList)}; links: ${JSON.stringify(edgeList)}; node-auto-color-by:"type"; node-label:"label"`)
+	let forceGraphAttr = {
+		nodes: JSON.stringify(nodeList),
+		links: JSON.stringify(edgeList),
+		'node-auto-color-by': node_color_prop,
+		'node-label': 'label',
+		'link-auto-color-by': 'prop'
+	};
+	document.getElementById("forceGraph").setAttribute('forcegraph', 
+		Object.keys(forceGraphAttr).map(attr => `${attr}: ${forceGraphAttr[attr]}`).join(';'))
 	console.log({ nodeList });
 	console.log({ edgeList });
-	addPropNamesToDOM(propIDLIst);
 
 }
 
 async function addPropNamesToDOM(propIDList) {
 	let selectMainNode = document.getElementById('graph-force-prop-select');
 	let optionList = [];
-	propIDList.forEach(prop => {
+	console.log({propIDList})
+	Object.keys(propIDList).forEach(prop => {
+		let optEL = document.createElement('option');
+		optEL.setAttribute('value', prop);
+		optEL.innerHTML = `${prop} (${propIDList[prop]})`;
+		selectMainNode.appendChild(optEL);
+	});
+	
+}
+
+
+async function addNodeColorByDOM(literal_propIDList) {
+	let selectMainNode = document.getElementById('node-color-prop-select');
+	literal_propIDList.forEach(prop => {
 		let optEL = document.createElement('option');
 		optEL.setAttribute('value', prop);
 		optEL.innerHTML = prop;
 		selectMainNode.appendChild(optEL);
 	});
 	
+}
+
+
+async function createdCountedPropList(propList) {
+	console.log({propList})
+	return propList.reduce(function (acc, curr) {
+		if (typeof acc[curr] == 'undefined') {
+		  acc[curr] = 1;
+		} else {
+		  acc[curr] += 1;
+		}
+	  
+		return acc;
+	  }, {});	  
 }
