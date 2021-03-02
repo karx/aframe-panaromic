@@ -3,6 +3,7 @@ AFRAME.registerComponent('thumbstick-goto',{
       this.el.addEventListener('thumbstickdown', this.gotoEntity);
     },
     gotoEntity: function (evt) {
+        console.log('THUMBSTICK down')
       console.log(this.el.intersectedEls);
       if(this.el.intersectedEls > 0) {
           let topEl = this.el.intersectedEls[0];
