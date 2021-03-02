@@ -13,10 +13,11 @@
 <body>
     <!-- <img id="skyImage" src="PanoLadakh.jpg" alt=""> -->
     <a-scene physics id="theScene" rain-of-entities="spread:13" rain-of-posts="spread: 5">
-        <a-entity oculus-touch-controls="hand: left"></a-entity>
-        <a-entity oculus-touch-controls="hand: right"></a-entity>
+        
         <a-entity id="rig" position="0 1.6 0" rotation="0 180 0">
-            <a-entity id="camera" camera look-controls wasd-controls="fly:true; acceleration:100"></a-entity>
+            <a-entity oculus-touch-controls="hand: left"></a-entity>
+            <a-entity oculus-touch-controls="hand: right"></a-entity>
+            <a-entity id="camera" camera look-controls wasd-controls="fly:true; acceleration:100" movement-controls="fly: true" ></a-entity>
         </a-entity>
         <a-entity 
             id="forceGraph" scale="0.2 0.2 0.2"
