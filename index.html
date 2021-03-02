@@ -8,19 +8,21 @@
     <script src="./aframe.min.js"></script>
     <script src="./aframe-extras.min.js"></script>
     <script src="https://unpkg.com/aframe-forcegraph-component/dist/aframe-forcegraph-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-camera-transform-controls-component/dist/aframe-camera-transform-controls-component.min.js"></script>
+    <!-- <script src="https://unpkg.com/aframe-camera-transform-controls-component/dist/aframe-camera-transform-controls-component.min.js"></script> -->
+    <!-- <script src="./aframe-camera-transform-controls-component.min.js"></script> -->
+    <script src="./go-to-oculus.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- <img id="skyImage" src="PanoLadakh.jpg" alt=""> -->
-    <a-scene physics id="theScene" camera-transform-controls="cameraRigId:'rig">
+    <a-scene physics id="theScene" >
         
-        <a-entity id="rig" position="0 1.6 0" rotation="0 180 0" movement-controls="fly: true">
-            <a-entity laser-controls="hand: left"></a-entity>
+        <a-entity id="cameraRig" position="0 1.6 0" rotation="0 180 0" movement-controls="fly: true">
+            <a-entity laser-controls="hand: left" thumbstick-goto></a-entity>
             <a-entity oculus-touch-controls="hand: right"></a-entity>
             
             <a-entity id="camera" camera  look-controls>
-                <a-entity   position="1 0 -1.5"
+                <a-entity position="1 0.5 -2"
                 id="nodeDesc"
                 geometry="primitive: plane"
                 material="color: #131383; transparent: true; opacity: 0.05;" 
