@@ -154,6 +154,8 @@ if (typeof AFRAME === 'undefined') {
     },
   
     onButtonDown: function (evt) {
+      console.log('Button Down');
+      console.log({evt});
       var left;
       var target;
   
