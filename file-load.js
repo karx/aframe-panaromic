@@ -102,6 +102,11 @@ window.addEventListener('load', async function () {
 		console.log('Raycaster Intersected');
 		console.log({e});
 	})
+	document.addEventListener('keydown', e => {
+		console.log('kEY down');
+		console.log({e});
+	})
+	
 	// Chrome OS
 	
 
