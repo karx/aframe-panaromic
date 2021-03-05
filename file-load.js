@@ -101,6 +101,7 @@ window.addEventListener('load', async function () {
 	document.addEventListener('raycaster-intersected', e => {
 		console.log('Raycaster Intersected');
 		console.log({e});
+		console.log(e.target);
 	})
 	document.addEventListener('keydown', e => {
 		console.log('kEY down');

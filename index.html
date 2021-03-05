@@ -22,11 +22,14 @@
             <a-entity id="righthand" camera-transform-controls-hand="hand: right" laser-controls="hand: right" raycaster="showLine: true; near:3; far: 20; lineColor: purple; lineOpacity: 0.5" ></a-entity>
             
             <a-entity id="camera" camera  look-controls>
-                <a-entity position="2 0.3 -1.75"
+                <a-entity 
+                position="2 0.3 -1.4"
+                rotation="0 -35 0"
                 id="nodeDesc"
                 geometry="primitive: plane"
                 material="color: #131383; transparent: true; opacity: 0.05;" 
                 text="value: 1-wide\ndefault."
+                
                 visible="false"></a-entity>
 
             </a-entity>
